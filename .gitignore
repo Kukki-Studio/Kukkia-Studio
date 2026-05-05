@@ -53,3 +53,4 @@ android/app/*.keystore
 ios/Runner/GoogleService-Info.plist
 *.p12
 *.mobileprovision
+app-arm64-v8a-release.apk

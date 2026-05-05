@@ -196,11 +196,11 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       if (kIsWeb) {
         return Image.network(_customBgPath!, fit: BoxFit.cover,
             width: double.infinity, height: double.infinity,
-            errorBuilder: (_, __, ___) => _presetBg(isDark));
+            errorBuilder: (_, _, _) => _presetBg(isDark));
       } else {
         return Image.file(File(_customBgPath!), fit: BoxFit.cover,
             width: double.infinity, height: double.infinity,
-            errorBuilder: (_, __, ___) => _presetBg(isDark));
+            errorBuilder: (_, _, _) => _presetBg(isDark));
       }
     }
     return _presetBg(isDark);
@@ -248,7 +248,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             width: 36, height: 36,
             decoration: BoxDecoration(color: accent.withValues(alpha: 0.12), shape: BoxShape.circle),
             child: ClipOval(child: Image.asset(widget.model.imagePath, fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) => Icon(Icons.face_retouching_natural, color: accent, size: 18))),
+                errorBuilder: (_, _, _) => Icon(Icons.face_retouching_natural, color: accent, size: 18))),
           ),
           const SizedBox(width: 8),
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -314,7 +314,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                     widget.model.imagePath,
                     height: MediaQuery.of(context).size.height * 0.55,
                     fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => Icon(
+                    errorBuilder: (_, _, _) => Icon(
                       Icons.face_retouching_natural, size: 220,
                       color: accent.withValues(alpha: 0.25)),
                   ),
@@ -362,7 +362,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                             Row(mainAxisSize: MainAxisSize.min,
                               children: List.generate(3, (i) => AnimatedBuilder(
                                 animation: _dotAnims[i],
-                                builder: (_, __) => Transform.translate(
+                                builder: (_, _) => Transform.translate(
                                   offset: Offset(0, _dotAnims[i].value),
                                   child: Container(
                                     margin: const EdgeInsets.symmetric(horizontal: 2),
@@ -588,7 +588,7 @@ class _Bubble extends StatelessWidget {
             Container(width: 30, height: 30,
               decoration: BoxDecoration(color: accentColor.withValues(alpha: 0.2), shape: BoxShape.circle),
               child: ClipOval(child: Image.asset(imagePath, fit: BoxFit.contain,
-                  errorBuilder: (_, __, ___) => Icon(Icons.face_retouching_natural, color: accentColor, size: 16)))),
+                  errorBuilder: (_, _, _) => Icon(Icons.face_retouching_natural, color: accentColor, size: 16)))),
             const SizedBox(width: 8),
           ],
           Flexible(
@@ -637,7 +637,7 @@ class _TypingBubble extends StatelessWidget {
           child: Row(mainAxisSize: MainAxisSize.min,
             children: List.generate(3, (i) => AnimatedBuilder(
               animation: anims[i],
-              builder: (_, __) => Transform.translate(
+              builder: (_, _) => Transform.translate(
                 offset: Offset(0, anims[i].value),
                 child: Container(
                   margin: const EdgeInsets.symmetric(horizontal: 2),
