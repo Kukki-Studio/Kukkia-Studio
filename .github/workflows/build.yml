@@ -1,0 +1,112 @@
+name: Build & Release APK
+
+on:
+  # Otomatis build setiap push ke branch main
+  push:
+    branches: [ main, master ]
+
+  # Bisa trigger manual dari GitHub → Actions → Run workflow
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Versi release (contoh: 1.0.1)'
+        required: false
+        default: ''
+
+jobs:
+  build-apk:
+    name: Build APK
+    runs-on: ubuntu-latest   # Server GitHub gratis, tidak makan RAM lokal
+
+    steps:
+      # 1. Checkout kode
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Setup Java 17
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # 3. Setup Flutter (versi stable terbaru)
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+          channel: 'stable'
+          cache: true   # Cache Flutter SDK agar build berikutnya lebih cepat
+
+      # 4. Install dependencies
+      - name: Install dependencies
+        run: flutter pub get
+
+      # 5. Analisis kode (opsional, bisa dimatikan kalau mau lebih cepat)
+      - name: Analyze code
+        run: flutter analyze --no-fatal-infos
+        continue-on-error: true
+
+      # 6. Build APK universal (1 file untuk semua HP)
+      - name: Build APK Release
+        run: flutter build apk --release
+
+      # 7. Build APK split per ABI (lebih kecil ukurannya)
+      - name: Build APK Split
+        run: flutter build apk --release --split-per-abi
+
+      # 8. Rename APK dengan versi & tanggal
+      - name: Rename APKs
+        run: |
+          DATE=$(date +'%Y%m%d')
+          VERSION=$(grep 'version:' pubspec.yaml | head -1 | awk '{print $2}' | cut -d'+' -f1)
+          mkdir -p output
+
+          # Universal APK
+          cp build/app/outputs/flutter-apk/app-release.apk \
+             output/kukkia-v${VERSION}-${DATE}.apk
+
+          # Split APKs
+          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk \
+             output/kukkia-v${VERSION}-${DATE}-arm64.apk
+          cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk \
+             output/kukkia-v${VERSION}-${DATE}-arm32.apk
+
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "DATE=${DATE}" >> $GITHUB_ENV
+
+      # 9. Upload APK sebagai artifact (bisa didownload dari GitHub)
+      - name: Upload APK Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: kukkia-apk-${{ env.DATE }}
+          path: output/
+          retention-days: 30   # Simpan 30 hari
+
+      # 10. Buat GitHub Release otomatis (hanya saat push ke main)
+      - name: Create GitHub Release
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.VERSION }}-${{ env.DATE }}
+          name: "Kukkia v${{ env.VERSION }} (${{ env.DATE }})"
+          body: |
+            ## 📱 Kukkia v${{ env.VERSION }}
+
+            ### Download
+            - **`kukkia-v${{ env.VERSION }}-${{ env.DATE }}.apk`** — Universal (semua HP)
+            - **`kukkia-v${{ env.VERSION }}-${{ env.DATE }}-arm64.apk`** — HP modern 64-bit (lebih kecil)
+            - **`kukkia-v${{ env.VERSION }}-${{ env.DATE }}-arm32.apk`** — HP lama 32-bit
+
+            ### Cara Install
+            1. Download APK di bawah
+            2. Buka di HP → izinkan install dari sumber tidak dikenal
+            3. Install & buka Kukkia 🎉
+
+            ### Perubahan
+            - Build otomatis dari commit: ${{ github.sha }}
+          files: output/*
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
