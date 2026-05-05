@@ -1,4 +1,4 @@
-name: Build & Release APK
+name: 🥰 Build & Release APK
 
 on:
   # Otomatis build setiap push ke branch main
@@ -45,10 +45,10 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      # 5. Analisis kode (opsional, bisa dimatikan kalau mau lebih cepat)
-      - name: Analyze code
-        run: flutter analyze --no-fatal-infos
-        continue-on-error: true
+      # 5. Analisis kode
+      # - name: Analyze code
+      #   run: flutter analyze --no-fatal-infos
+      #   continue-on-error: true
 
       # 6. Build APK universal (1 file untuk semua HP)
       - name: Build APK Release
@@ -113,5 +113,3 @@ jobs:
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-        permissions:
-          contents: write
