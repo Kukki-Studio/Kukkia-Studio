@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'alarm/alarm_screen.dart';
 import 'dashboard/dashboard_screen.dart';
 import 'ngobrol/ngobrol_screen.dart';
+import 'onboarding/onboarding_screen.dart';
 import 'pengaturan/pengaturan_screen.dart';
 import 'pilih_model/pilih_model_screen.dart';
 import 'providers/theme_provider.dart';
@@ -10,12 +12,20 @@ import 'set_latar/set_latar_screen.dart';
 import 'shell/main_shell.dart';
 import 'splash/splash_screen.dart';
 
-void main() {
-  runApp(const KukkiaApp());
+void main() async {
+  // Wajib sebelum pakai plugin apapun
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Cek apakah onboarding sudah pernah dilakukan
+  final prefs = await SharedPreferences.getInstance();
+  final onboardingDone = prefs.getBool('onboarding_done') ?? false;
+
+  runApp(KukkiaApp(onboardingDone: onboardingDone));
 }
 
 class KukkiaApp extends StatefulWidget {
-  const KukkiaApp({super.key});
+  final bool onboardingDone;
+  const KukkiaApp({super.key, required this.onboardingDone});
 
   @override
   State<KukkiaApp> createState() => _KukkiaAppState();
@@ -33,9 +43,14 @@ class _KukkiaAppState extends State<KukkiaApp> {
       darkTheme: _themeProvider.darkTheme,
       themeMode:
           _themeProvider.isDark ? ThemeMode.dark : ThemeMode.light,
+      // Kalau onboarding belum, mulai dari onboarding
+      // Kalau sudah, langsung splash → home
       initialRoute: '/',
       routes: {
-        '/': (_) => const SplashScreen(),
+        '/': (_) => widget.onboardingDone
+            ? const SplashScreen()
+            : const OnboardingScreen(),
+        '/splash': (_) => const SplashScreen(),
         '/home': (_) => MainShell(themeProvider: _themeProvider),
         '/dashboard': (_) => const DashboardScreen(),
         '/ngobrol': (_) => const NgobrolScreen(),

@@ -21,7 +21,7 @@ android {
 
     defaultConfig {
         applicationId = "com.kukkia.app"
-        minSdk = flutter.minSdkVersion  // Android 5.0+ — covers 99%+ devices
+        minSdk = 21
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
