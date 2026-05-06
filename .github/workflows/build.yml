@@ -45,6 +45,10 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      # 4b. Generate app icons dari LOGO 2.png
+      - name: Generate launcher icons
+        run: flutter pub run flutter_launcher_icons
+
       # 5. Analisis kode
       # - name: Analyze code
       #   run: flutter analyze --no-fatal-infos

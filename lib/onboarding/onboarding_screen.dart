@@ -77,7 +77,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       child: Image.asset(
                         'lib/assets/img/LOGO 2.png',
                         fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) => const Icon(
+                        errorBuilder: (_, _, _) => const Icon(
                           Icons.favorite,
                           color: _accent,
                           size: 48,
