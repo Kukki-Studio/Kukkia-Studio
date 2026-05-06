@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'permission_service.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -10,48 +11,51 @@ class OnboardingScreen extends StatefulWidget {
   State<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
-class _OnboardingScreenState extends State<OnboardingScreen> {
-  bool _notifGranted = false;
-  bool _storageGranted = false;
-  bool _loading = false;
+class _FeatCard extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final String title;
+  final String desc;
 
-  static const _accent = Color(0xFFFF6B35);
+  const _FeatCard({required this.icon, required this.iconColor, required this.title, required this.desc});
 
   @override
-  void initState() {
-    super.initState();
-    _checkExisting();
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE9ECEF), width: 1.5),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48, height: 48,
+            decoration: BoxDecoration(color: iconColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)),
+            child: Icon(icon, color: iconColor, size: 24),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF212529))),
+              const SizedBox(height: 3),
+              Text(desc, style: const TextStyle(fontSize: 12, color: Color(0xFF6C757D), height: 1.4)),
+            ]),
+          ),
+        ],
+      ),
+    );
   }
+}
 
-  Future<void> _checkExisting() async {
-    final notif = await PermissionService.checkNotification();
-    final storage = await PermissionService.checkStorage();
-    if (mounted) {
-      setState(() {
-        _notifGranted = notif;
-        _storageGranted = storage;
-      });
-    }
-  }
+class _OnboardingScreenState extends State<OnboardingScreen> {
+  static const _accent = Color(0xFFFF6B35);
+  bool _notifGranted = false;
+  bool _storageGranted = false;
 
-  Future<void> _requestNotif() async {
-    final granted = await PermissionService.requestNotification();
-    if (mounted) setState(() => _notifGranted = granted);
-  }
-
-  Future<void> _requestStorage() async {
-    final granted = await PermissionService.requestStorage();
-    if (mounted) setState(() => _storageGranted = granted);
-  }
-
-  Future<void> _continue() async {
-    setState(() => _loading = true);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('onboarding_done', true);
-    if (mounted) {
-      Navigator.of(context).pushReplacementNamed('/splash');
-    }
-  }
+  bool _loading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +82,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       child: Image.asset(
                         'lib/assets/img/LOGO 2.png',
                         fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) => const Icon(
+                        errorBuilder: (_, _, _) => const Icon(
                           Icons.favorite,
                           color: _accent,
                           size: 48,
@@ -199,6 +203,42 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       ),
     );
   }
+
+  @override
+  void initState() {
+    super.initState();
+    _checkExisting();
+  }
+
+  Future<void> _checkExisting() async {
+    final notif = await PermissionService.checkNotification();
+    final storage = await PermissionService.checkStorage();
+    if (mounted) {
+      setState(() {
+        _notifGranted = notif;
+        _storageGranted = storage;
+      });
+    }
+  }
+
+  Future<void> _continue() async {
+    setState(() => _loading = true);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('onboarding_done', true);
+    if (mounted) {
+      Navigator.of(context).pushReplacementNamed('/splash');
+    }
+  }
+
+  Future<void> _requestNotif() async {
+    final granted = await PermissionService.requestNotification();
+    if (mounted) setState(() => _notifGranted = granted);
+  }
+
+  Future<void> _requestStorage() async {
+    final granted = await PermissionService.requestStorage();
+    if (mounted) setState(() => _storageGranted = granted);
+  }
 }
 
 class _PermCard extends StatelessWidget {
@@ -262,45 +302,6 @@ class _PermCard extends StatelessWidget {
                     child: const Text('Izinkan', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.white)),
                   ),
                 ),
-        ],
-      ),
-    );
-  }
-}
-
-class _FeatCard extends StatelessWidget {
-  final IconData icon;
-  final Color iconColor;
-  final String title;
-  final String desc;
-
-  const _FeatCard({required this.icon, required this.iconColor, required this.title, required this.desc});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE9ECEF), width: 1.5),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 48, height: 48,
-            decoration: BoxDecoration(color: iconColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)),
-            child: Icon(icon, color: iconColor, size: 24),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF212529))),
-              const SizedBox(height: 3),
-              Text(desc, style: const TextStyle(fontSize: 12, color: Color(0xFF6C757D), height: 1.4)),
-            ]),
-          ),
         ],
       ),
     );

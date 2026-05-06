@@ -73,6 +73,18 @@ keytool -genkey -v -keystore android/app/kukkia-release.jks \
   -alias kukkia
 ```
 
+# Push biasa, tanya pesan
+.\push.ps1
+
+# Push dengan pesan langsung
+.\push.ps1 "perbaiki bug chat"
+
+# Update versi + commit otomatis "release: v1.0.1"
+.\push.ps1 -version 1.0.1
+
+# Update versi + pesan custom
+.\push.ps1 -version 1.0.1 "fix crash Android + onboarding"
+
 Buat file `android/key.properties` (jangan di-commit ke git!):
 ```properties
 storePassword=<password_kamu>
