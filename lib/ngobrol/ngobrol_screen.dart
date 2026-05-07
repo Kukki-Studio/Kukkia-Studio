@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../chat/chat_screen.dart';
 import '../models/anime_model.dart';
+import '../providers/app_preferences.dart';
 
 /// Tab Ngobrol = halaman pilih model anime.
 /// Pilih karakter → jika bebas langsung ke chat,
