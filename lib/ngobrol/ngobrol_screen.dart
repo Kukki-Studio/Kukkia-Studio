@@ -454,11 +454,22 @@ class _NgobrolScreenState extends State<NgobrolScreen> {
     );
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _loadUnlocked();
+  }
+
   void _goToChat(AnimeModel model) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => ChatScreen(model: model)),
     );
+  }
+
+  Future<void> _loadUnlocked() async {
+    final unlocked = await AppPreferences.getUnlockedModels();
+    if (mounted) setState(() => _unlockedByAds.addAll(unlocked));
   }
 
   void _onTap(AnimeModel model) {
@@ -479,6 +490,7 @@ class _NgobrolScreenState extends State<NgobrolScreen> {
         model: model,
         onUnlocked: () {
           setState(() => _unlockedByAds.add(model.id));
+          AppPreferences.addUnlockedModel(model.id);
           Navigator.pop(context); // tutup sheet
           _goToChat(model);
         },

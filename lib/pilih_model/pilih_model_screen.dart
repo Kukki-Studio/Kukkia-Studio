@@ -453,6 +453,17 @@ class _PilihModelScreenState extends State<PilihModelScreen> {
     );
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _loadUnlocked();
+  }
+
+  Future<void> _loadUnlocked() async {
+    final unlocked = await AppPreferences.getUnlockedModels();
+    if (mounted) setState(() => _unlockedByAds.addAll(unlocked));
+  }
+
   void _onTap(AnimeModel model) {
     if (!model.isLocked || _unlockedByAds.contains(model.id)) {
       Navigator.push(
@@ -473,6 +484,7 @@ class _PilihModelScreenState extends State<PilihModelScreen> {
         model: model,
         onUnlocked: () {
           setState(() => _unlockedByAds.add(model.id));
+          AppPreferences.addUnlockedModel(model.id);
           Navigator.pop(context);
           Navigator.push(
             context,
